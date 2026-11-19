@@ -70,6 +70,23 @@ export function PiezaDetail({ pieza: p, revisiones }: { pieza: Pieza; revisiones
             </Button>
           </>
         )}
+        {p.estado === "APROBADA" && (
+          <Button
+            disabled={busy}
+            onClick={() => {
+              mutation.reset();
+              preview.submit({ intent: "preview" }, { method: "post" });
+              setModal("programar");
+            }}
+          >
+            Programar
+          </Button>
+        )}
+        {p.estado === "PROGRAMADA" && (
+          <Button variant="secondary" disabled={busy} onClick={() => act("cancelar-programacion")}>
+            Cancelar programación
+          </Button>
+        )}
         {p.estado === "BORRADOR" && (
           <Button variant="danger" disabled={busy} onClick={() => setModal("eliminar")}>
             Eliminar
@@ -295,6 +312,52 @@ export function PiezaDetail({ pieza: p, revisiones }: { pieza: Pieza; revisiones
             Solicitar cambios
           </Button>
         </mutation.Form>
+      </Modal>
+      <Modal open={scheduleOpen} onClose={() => setModal("")} title="Confirmar programación">
+        {preview.state !== "idle" ? (
+          <p role="status">Consultando condiciones de programación…</p>
+        ) : preview.data?.error ? (
+          <Alert tone="danger">{preview.data.error}</Alert>
+        ) : (
+          scheduled && (
+            <div className="space-y-4">
+              <p className="font-semibold">Cliente: {scheduled.cliente}</p>
+              <p>
+                {scheduled.programada_para
+                  ? formatDateTime(scheduled.programada_para)
+                  : "Sin fecha"}{" "}
+                · Hora de Colombia
+              </p>
+              {scheduled.redes.map((r) => (
+                <div key={r.red} className="border-line space-y-1 rounded-lg border p-3">
+                  <h3 className="font-medium">
+                    {RED_LABEL[r.red]} · {r.cuenta?.handle || "Sin cuenta"}
+                  </h3>
+                  <p>{r.cuenta ? ESTADO_CUENTA_LABEL[r.cuenta.estado] : "Cuenta no registrada"}</p>
+                  <p className="break-words whitespace-pre-wrap">{r.copy_final}</p>
+                </div>
+              ))}
+              <p className="break-words">Archivos: {scheduled.archivos.join(", ")}</p>
+              {scheduled.problemas.length > 0 && (
+                <Alert tone="warning">
+                  <ul className="list-inside list-disc">
+                    {scheduled.problemas.map((problem, i) => (
+                      <li key={i}>{problem}</li>
+                    ))}
+                  </ul>
+                </Alert>
+              )}
+              {mutation.data?.error && <Alert tone="danger">{mutation.data.error}</Alert>}
+              <mutation.Form method="post">
+                <input type="hidden" name="intent" value="programar" />
+                <input type="hidden" name="confirmar" value="true" />
+                <Button type="submit" loading={busy} disabled={!scheduled.puede_confirmar}>
+                  Confirmar programación
+                </Button>
+              </mutation.Form>
+            </div>
+          )
+        )}
       </Modal>
       <Modal open={modal === "eliminar"} onClose={() => setModal("")} title="Eliminar borrador">
         <p className="mb-4">
