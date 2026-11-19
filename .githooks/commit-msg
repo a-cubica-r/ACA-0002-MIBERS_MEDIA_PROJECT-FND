@@ -1,0 +1,16 @@
+#!/bin/sh
+# Politica del repositorio: ningun agente de IA figura como autor ni coautor.
+# Elimina trailers Co-authored-by y lineas de atribucion automatica, y rechaza autores que sean bots/agentes.
+msg_file="$1"
+tmp="$(mktemp)"
+grep -viE '^[[:space:]]*co-authored-by:|generated with \[?claude|generated (by|with) (codex|opencode|ai)|^[[:space:]]*🤖' "$msg_file" > "$tmp"
+# quitar lineas en blanco finales
+sed -e ':a' -e '/^\n*$/{$d;N;ba' -e '}' "$tmp" > "$msg_file"
+rm -f "$tmp"
+
+ident="$(git var GIT_AUTHOR_IDENT) $(git var GIT_COMMITTER_IDENT)"
+if echo "$ident" | grep -qiE 'claude|anthropic|codex|openai|opencode|deepseek|noreply@(anthropic|openai)'; then
+  echo "commit-msg: autor/committer no permitido ($ident). Usa la identidad del desarrollador." >&2
+  exit 1
+fi
+exit 0
