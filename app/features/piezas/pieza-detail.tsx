@@ -48,6 +48,28 @@ export function PiezaDetail({ pieza: p, revisiones }: { pieza: Pieza; revisiones
             Editar
           </Link>
         )}
+        {["BORRADOR", "CAMBIOS_SOLICITADOS"].includes(p.estado) && (
+          <Button disabled={busy} onClick={() => act("enviar-revision")}>
+            Enviar a revisión
+          </Button>
+        )}
+        {admin && p.estado === "EN_REVISION" && (
+          <>
+            <Button disabled={busy} onClick={() => act("aprobar")}>
+              Aprobar
+            </Button>
+            <Button
+              variant="secondary"
+              disabled={busy}
+              onClick={() => {
+                mutation.reset();
+                setModal("cambios");
+              }}
+            >
+              Solicitar cambios
+            </Button>
+          </>
+        )}
         {p.estado === "BORRADOR" && (
           <Button variant="danger" disabled={busy} onClick={() => setModal("eliminar")}>
             Eliminar
@@ -238,6 +260,42 @@ export function PiezaDetail({ pieza: p, revisiones }: { pieza: Pieza; revisiones
           )}
         </div>
       </section>
+      <section className="border-line bg-surface space-y-4 rounded-xl border p-5">
+        <h2 className="text-lg font-semibold">Revisiones</h2>
+        {!revisiones.length && <p className="text-ink-muted">Aún no hay revisiones.</p>}
+        <ol className="space-y-3">
+          {revisiones.map((r) => (
+            <li key={r.id} className="border-line border-b pb-3">
+              <p className="font-medium">
+                {(
+                  {
+                    ENVIADA: "Enviada a revisión",
+                    APROBADA: "Aprobada",
+                    CAMBIOS: "Cambios solicitados",
+                    DEVUELTA: "Devuelta a revisión",
+                  } as Record<string, string>
+                )[r.decision] || r.decision}
+              </p>
+              <p className="text-ink-muted text-sm">
+                {r.autor_username || "Sistema"} · {formatDateTime(r.created_at)}
+              </p>
+              <p className="break-words whitespace-pre-wrap">{r.comentario}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+      <Modal open={changesOpen} onClose={() => setModal("")} title="Solicitar cambios">
+        <mutation.Form method="post" className="space-y-4">
+          <input type="hidden" name="intent" value="solicitar-cambios" />
+          <Field label="Comentario" htmlFor="comentario" required>
+            <Textarea id="comentario" name="comentario" required rows={4} />
+          </Field>
+          {mutation.data?.error && <Alert tone="danger">{mutation.data.error}</Alert>}
+          <Button type="submit" loading={busy}>
+            Solicitar cambios
+          </Button>
+        </mutation.Form>
+      </Modal>
       <Modal open={modal === "eliminar"} onClose={() => setModal("")} title="Eliminar borrador">
         <p className="mb-4">
           Se eliminarán la pieza y sus archivos. Esta acción no se puede deshacer.
