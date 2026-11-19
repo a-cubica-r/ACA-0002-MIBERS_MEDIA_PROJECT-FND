@@ -24,7 +24,7 @@ export function PiezaForm({
   result?: FormResult;
 }) {
   const [networks, setNetworks] = useState<string[]>(pieza?.redes.map((r) => r.red) ?? []);
-  const distinct = false;
+  const [distinct, setDistinct] = useState(pieza?.redes.some((r) => r.copy) ?? false);
   const busy = useNavigation().state !== "idle";
   const errors = result?.fieldErrors;
   const reviewed = pieza && ["APROBADA", "PROGRAMADA", "FALLIDA"].includes(pieza.estado);
@@ -116,6 +116,11 @@ export function PiezaForm({
           </p>
         )}
       </fieldset>
+      <label className="flex items-center gap-2">
+        <input type="checkbox" checked={distinct} onChange={(e) => setDistinct(e.target.checked)} />
+        Copy distinto por red
+      </label>
+      <input name="distinto" type="hidden" value={String(distinct)} />
       <Field label="Copy común" htmlFor="copy_comun" error={errors?.copy_comun}>
         <Textarea
           id="copy_comun"
@@ -125,6 +130,24 @@ export function PiezaForm({
           required={!distinct}
         />
       </Field>
+      {distinct &&
+        NETWORKS.filter((r) => networks.includes(r)).map((red) => (
+          <Field
+            key={red}
+            label={`Copy para ${RED_LABEL[red]}`}
+            htmlFor={red}
+            error={errors?.[red]}
+            required
+          >
+            <Textarea
+              id={red}
+              name={red}
+              rows={4}
+              required
+              defaultValue={pieza?.redes.find((r) => r.red === red)?.copy || pieza?.copy_comun}
+            />
+          </Field>
+        ))}
       <div className="grid gap-5 md:grid-cols-2">
         <Field
           label="Hashtags"
