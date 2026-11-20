@@ -226,6 +226,20 @@ export function TaskCard({ task, now }: { task: TareaPublicacion; now: number })
           </Button>
         </div>
       )}
+      {task.estado === "FALLIDA" && (
+        <retry.Form method="post">
+          <input type="hidden" name="intent" value="reintentar" />
+          <input type="hidden" name="id" value={task.id} />
+          <Button type="submit" size="sm" loading={retry.state !== "idle"}>
+            Reintentar
+          </Button>
+        </retry.Form>
+      )}
+      {retry.data && !retry.data.ok && (
+        <p role="alert" className="text-danger-700 text-sm">
+          {retry.data.error}
+        </p>
+      )}
       {intent && <TaskModal task={task} intent={intent} onClose={() => setIntent(null)} />}
     </article>
   );
