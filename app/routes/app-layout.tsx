@@ -2,11 +2,26 @@ import type { ReactNode } from "react";
 import { Form, Outlet, isRouteErrorResponse, useNavigation, useRouteError } from "react-router";
 import type { Route } from "./+types/app-layout";
 import { AppShell } from "~/components/layout/app-shell";
-import { IconBuilding, IconHome, IconLogout, IconUser, IconUsers } from "~/components/layout/icons";
+import {
+  IconBell,
+  IconBuilding,
+  IconCalendar,
+  IconChart,
+  IconChecklist,
+  IconFile,
+  IconHistory,
+  IconHome,
+  IconLogout,
+  IconSend,
+  IconShield,
+  IconUser,
+  IconUsers,
+} from "~/components/layout/icons";
 import { Button } from "~/components/ui/button";
 import { Alert } from "~/components/ui/alert";
 import { requireUser } from "~/lib/auth/guards";
 import { getCachedUser } from "~/lib/auth/session";
+import { useIdleLogout } from "~/lib/auth/idle";
 import { ApiError } from "~/lib/api/errors";
 import type { Usuario } from "~/lib/api/types";
 import { fullName, ROLE_LABEL } from "~/lib/format";
@@ -18,10 +33,25 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
 }
 function Shell({ user, children }: { user: Usuario | null; children: ReactNode }) {
   const navigation = useNavigation();
+  useIdleLogout();
+  const isAdmin = user?.role === "ADMIN";
+  const adminOnly = <T,>(items: T[]): T[] => (isAdmin ? items : []);
   const navItems = [
     { to: "/", label: "Inicio", icon: IconHome, end: true },
     { to: "/clientes", label: "Clientes", icon: IconBuilding },
-    ...(user?.role === "ADMIN" ? [{ to: "/usuarios", label: "Usuarios", icon: IconUsers }] : []),
+    { to: "/piezas", label: "Contenido", icon: IconFile },
+    { to: "/cronograma", label: "Cronograma", icon: IconCalendar },
+    { to: "/publicaciones", label: "Publicaciones", icon: IconSend },
+    { to: "/metricas", label: "Métricas", icon: IconChart },
+    { to: "/tareas", label: "Tareas", icon: IconChecklist },
+    ...adminOnly([
+      { to: "/alertas", label: "Alertas", icon: IconBell },
+      { to: "/cumplimiento", label: "Cumplimiento", icon: IconShield },
+      { to: "/historial", label: "Historial", icon: IconHistory },
+      { to: "/equipo", label: "Equipo", icon: IconUsers },
+      { to: "/usuarios", label: "Usuarios", icon: IconUsers },
+      { to: "/configuracion/politica", label: "Política de datos", icon: IconFile },
+    ]),
     { to: "/perfil", label: "Mi perfil", icon: IconUser },
   ];
   return (
