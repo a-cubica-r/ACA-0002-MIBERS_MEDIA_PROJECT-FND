@@ -71,10 +71,12 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
       return { ok: true };
     }
     if (intent === "leer-todas") {
-      const ids = form
-        .getAll("ids")
-        .filter((id): id is string => typeof id === "string" && id.length > 0);
-      await Promise.all(ids.map((id) => marcarAlertaLeida(id)));
+      // Recorre todas las paginas de no leidas, no solo la visible.
+      for (let guard = 0; guard < 40; guard++) {
+        const { results } = await listAlertas({ leida: false, page: 1 });
+        if (results.length === 0) break;
+        await Promise.all(results.map((alerta) => marcarAlertaLeida(alerta.id)));
+      }
       return { ok: true };
     }
     return { ok: false, error: "Acción inválida." };
@@ -83,6 +85,15 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     throw error;
   }
 }
+
+const TIPO_LABEL: Record<string, string> = {
+  PUBLICACION_FALLIDA: "Publicación fallida",
+  PUBLICACION_BLOQUEADA: "Publicación bloqueada por falta de aprobación",
+  PUBLICACION_ATRASADA: "Publicación pendiente sin confirmar",
+  CUENTA_EXPIRADA: "Cuenta de red expirada",
+  CUENTA_DESVINCULADA: "Cuenta de red desvinculada",
+  ENVIO_CLIENTE_FALLIDO: "Falló el envío al cliente",
+};
 
 function AlertaItem({ alerta }: { alerta: Alerta }) {
   const fetcher = useFetcher<typeof clientAction>();
@@ -98,7 +109,7 @@ function AlertaItem({ alerta }: { alerta: Alerta }) {
         />
         <div className="min-w-0 flex-1 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge tone={tone}>{alerta.tipo_label}</Badge>
+            <Badge tone={tone}>{TIPO_LABEL[alerta.tipo] ?? alerta.tipo_label}</Badge>
             {!alerta.leida_at && (
               <span className="inline-flex items-center">
                 <span aria-hidden="true" className="bg-brand-600 h-2 w-2 rounded-full" />
@@ -115,6 +126,19 @@ function AlertaItem({ alerta }: { alerta: Alerta }) {
                 className="text-brand-700 text-sm font-medium hover:underline"
               >
                 Ver pieza
+              </Link>
+            )}
+            {entity.includes("tareapublicacion") && (
+              <Link
+                to="/publicaciones?estado=FALLIDA"
+                className="text-brand-700 text-sm font-medium hover:underline"
+              >
+                Ver publicaciones
+              </Link>
+            )}
+            {entity.includes("cuentasocial") && (
+              <Link to="/clientes" className="text-brand-700 text-sm font-medium hover:underline">
+                Ver clientes
               </Link>
             )}
             {entity.includes("cliente") && (
