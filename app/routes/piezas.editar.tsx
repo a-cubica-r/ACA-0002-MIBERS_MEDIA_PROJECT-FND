@@ -12,6 +12,8 @@ export const meta = () => [{ title: "Editar pieza · Mibers" }];
 export async function clientLoader({ request, params }: Route.ClientLoaderArgs) {
   const user = await requireUser(request);
   const [options, pieza] = await Promise.all([loadFormOptions(user), getPieza(params.piezaId)]);
+  if (["PUBLICADA", "COMPARTIDA"].includes(pieza.estado))
+    throw redirect(`/piezas/${params.piezaId}`);
   return { ...options, pieza };
 }
 export async function clientAction({ request, params }: Route.ClientActionArgs) {
