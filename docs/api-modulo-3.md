@@ -81,17 +81,11 @@ Tasa: `interacciones / alcance * 100`; alcance cero o dato nulo: sin dato.
 Las sumas son nulas si un campo de una fila es nulo. Al sumar redes se informa que
 el total no representa personas únicas. Tabla mensual y tablas alternativas a gráficas.
 
-## Análisis asistido (MOCK, sin endpoint de IA)
+## Análisis asistido por IA (retirado)
 
-`getAnalisis(clienteId): Promise<AnalisisPublicacion[]>` en `app/lib/mock/analisis.ts`.
-Consulta `GET /piezas?cliente=<uuid>&estado=PUBLICADA&page=N&page_size=100`
-(contrato de `modules/content`), en todas sus páginas. Usa id y título reales si
-hay piezas; en caso contrario crea tres publicaciones de ejemplo. Los errores de
-API se propagan, no se convierten en ejemplos. El seed por id produce porcentajes
-estables que suman 100, temas, tres comentarios y un resumen de tres frases.
-Todos esos análisis y comentarios son simulados; la UI muestra una alerta warning
-y distingue las publicaciones de ejemplo. No genera copies. La interfaz del servicio
-permite sustituir el mock por una API real sin modificar la UI.
+El análisis asistido por IA (HU-26 / RF24) **se retiró el 22/11/2026 por estar fuera del alcance del Acta 3**. Se
+eliminaron `app/lib/mock/analisis.ts`, la ruta `/metricas/analisis` y su pestaña. Este módulo no consume ningún endpoint
+de IA.
 
 ## Verificación local (2026-11-20)
 
@@ -100,5 +94,4 @@ para Café La Montaña (`ceb62bf7-ef2b-416f-9896-970884c1df3e`): junio a noviemb
 2026, Instagram y Facebook. La carga omitió cualquier clave red/mes preexistente.
 GET devolvió las 12 filas; con filtro Instagram devolvió 6. STAFF pudo consultar
 (200) y no sincronizar (403). Un PUT de mes 2099-01 devolvió 400 con error `mes`.
-El cliente no tenía piezas publicadas, por lo que su análisis muestra ejemplos.
 La sincronización real con Meta queda sujeta a credenciales/configuración del backend.

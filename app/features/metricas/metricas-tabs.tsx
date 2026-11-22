@@ -7,7 +7,6 @@ export function MetricasTabs({ cliente }: { cliente: string }) {
       {[
         ["/metricas", "Tablero de indicadores"],
         ["/metricas/cargar", "Cargar métricas"],
-        ["/metricas/analisis", "Análisis asistido por IA"],
       ].map(([path, label]) => (
         <NavLink
           key={path}

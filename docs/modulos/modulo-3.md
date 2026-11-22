@@ -1,22 +1,23 @@
-# Módulo 3 — Métricas y Analítica (con apoyo de IA)
+# Módulo 3 — Métricas y Analítica
 
-Estado: **terminado y verificado por QA** (sin defectos). Tablero e informe mensual con la API real; el análisis con IA
-funciona con **datos de demostración** porque el backend aún no lo implementa. Contrato: `docs/api-modulo-3.md`.
+Estado: **terminado y verificado por QA** (sin defectos). Tablero e informe mensual con la API real. Contrato:
+`docs/api-modulo-3.md`.
+
+El **análisis asistido por IA** (`/metricas/analisis`, HU-26 / RF24), que funcionaba con datos de demostración, **se
+retiró el 22/11/2026 por estar fuera del alcance del Acta 3**, junto con su mock `lib/mock/analisis.ts` y su pestaña.
 
 ## Qué se hizo
 
-| Pantalla                                            | Requisitos                               | Detalle                                                                                                                                                                                                                                                                                                                                                                                                               |
-| --------------------------------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Tablero de indicadores** (`/metricas`)            | RF23, HU-24, informe mensual del charter | Por cliente, red (todas/Instagram/Facebook) y periodo (6 o 12 meses): KPIs del último mes (alcance, visualizaciones, interacciones, seguidores y tasa de interacción) con variación frente al mes anterior; gráficas de barras de alcance por red y de seguidores hechas con SVG (sin librerías), cada una con su tabla de datos accesible; tabla mensual por red. Sin exportación de archivos, como pide el charter. |
-| **Cargar métricas** (`/metricas/cargar`)            | RF23                                     | Cliente y mes (no se permiten meses futuros); al elegirlos se precargan los valores existentes; los cuatro indicadores de Instagram y Facebook; errores por campo. La agencia no es Tech Provider, así que las métricas se cargan a mano.                                                                                                                                                                             |
-| **Análisis asistido por IA** (`/metricas/analisis`) | Charter, módulo 3                        | Por publicación: sentimiento (positivo/neutral/negativo), temas principales, comentarios representativos y un resumen. No genera copies. Usa las piezas publicadas reales del cliente y un **mock determinista** (`lib/mock/analisis.ts`) con la misma firma que tendrá la API (`getAnalisis(clienteId)`); un aviso visible indica que son datos de demostración.                                                     |
+| Pantalla                                 | Requisitos                               | Detalle                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ---------------------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Tablero de indicadores** (`/metricas`) | RF23, HU-24, informe mensual del charter | Por cliente, red (todas/Instagram/Facebook) y periodo (6 o 12 meses): KPIs del último mes (alcance, visualizaciones, interacciones, seguidores y tasa de interacción) con variación frente al mes anterior; gráficas de barras de alcance por red y de seguidores hechas con SVG (sin librerías), cada una con su tabla de datos accesible; tabla mensual por red. Sin exportación de archivos, como pide el charter. |
+| **Cargar métricas** (`/metricas/cargar`) | RF23                                     | Cliente y mes (no se permiten meses futuros); al elegirlos se precargan los valores existentes; los cuatro indicadores de Instagram y Facebook; errores por campo. La agencia no es Tech Provider, así que las métricas se cargan a mano.                                                                                                                                                                             |
 
 Tanto el Administrador como el Personal consultan y cargan métricas.
 
 ## Verificación
 
-- Pruebas automáticas: variaciones y tasa de interacción (base cero, alcance cero, valores nulos, sin mes anterior) y
-  determinismo del mock.
+- Pruebas automáticas: variaciones y tasa de interacción (base cero, alcance cero, valores nulos, sin mes anterior).
 - **QA (Sol, instancia nueva) en navegador**: con 12 registros reales comprobó KPIs y variaciones a mano (alcance
   25.666, +10,2 %; tasa 7,1 %), filtros, cliente sin datos, precarga, guardado en ambas redes, validaciones (negativos y
   mes futuro), permisos del Personal, análisis estable al recargar, 360 px y consola. **Sin defectos.**
@@ -28,10 +29,7 @@ flowchart LR
   T["metricas (tablero)"] --> K["features/metricas<br/>calculos.ts: variación, tasa"]
   T --> G["Gráficas SVG + tabla alternativa"]
   T & CG["metricas.cargar"] --> MA["lib/api/metricas.ts"] --> C["lib/api/client.ts"] --> API["API Django<br/>GET metricas · PUT clientes/{id}/metricas"]
-  AN["metricas.analisis"] --> MK["lib/mock/analisis.ts<br/>getAnalisis(clienteId)"]
-  MK -- "piezas publicadas reales" --> C
-  MK -. "mañana: llamada real a la IA" .-> FUT["Endpoint de análisis (pendiente)"]
-  TABS["features/metricas/metricas-tabs"] -.-> T & CG & AN
+  TABS["features/metricas/metricas-tabs"] -.-> T & CG
 ```
 
 ## Cómo administré los subagentes
@@ -46,8 +44,6 @@ El módulo se desarrolló **en paralelo** con el QA del módulo 2 y con el módu
 
 ## Pendiente
 
-- Endpoint de análisis con IA en el backend (comentarios de cada publicación + resumen); cambiar la implementación de
-  `getAnalisis` sin tocar la interfaz.
 - Tablero de horarios de mayor actividad (charter): requiere datos por hora que hoy no entrega la API; RF23 lo deja
   fuera del alcance.
 - Sincronización automática con Meta cuando haya credenciales.

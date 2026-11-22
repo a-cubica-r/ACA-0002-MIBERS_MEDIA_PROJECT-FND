@@ -118,11 +118,6 @@ export const IconChart = (p: IconProps) => (
     <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
   </Svg>
 );
-export const IconChecklist = (p: IconProps) => (
-  <Svg {...p}>
-    <path d="m4 6 1.5 1.5L8 5M4 12l1.5 1.5L8 11M4 18l1.5 1.5L8 17M11 6h9M11 12h9M11 18h9" />
-  </Svg>
-);
 export const IconBell = (p: IconProps) => (
   <Svg {...p}>
     <path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0" />
@@ -137,5 +132,10 @@ export const IconShield = (p: IconProps) => (
   <Svg {...p}>
     <path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z" />
     <path d="m9 12 2 2 4-4" />
+  </Svg>
+);
+export const IconMessage = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" />
   </Svg>
 );

@@ -13,7 +13,8 @@ pnpm check                  # typecheck + lint + pruebas
 pnpm build                  # genera build/client (estático, desplegable en cualquier CDN)
 ```
 
-Convenciones del equipo en [`AGENTS.md`](AGENTS.md); contrato de la API en [`docs/api-modulo-1.md`](docs/api-modulo-1.md).
+Informes por módulo (qué se hizo, arquitectura y estrategia de agentes) en [`docs/modulos/`](docs/modulos/README.md).
+Convenciones del equipo en [`AGENTS.md`](AGENTS.md); contratos de la API en `docs/api-*.md`.
 
 ## Git
 
