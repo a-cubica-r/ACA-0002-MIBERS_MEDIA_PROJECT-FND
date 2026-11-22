@@ -91,8 +91,9 @@ export default function ClienteDetalle() {
       </div>
       {!cliente.activo && (
         <Alert tone="warning">
-          Cliente inactivo
-          {cliente.desactivado_at ? ` desde el ${formatDateTime(cliente.desactivado_at)}` : ""}.
+          {cliente.desactivado_at
+            ? `Cliente inactivo desde el ${formatDateTime(cliente.desactivado_at)}`
+            : "Cliente inactivo."}
         </Alert>
       )}
       {fetcher.data?.error && <Alert tone="danger">{fetcher.data.error}</Alert>}
