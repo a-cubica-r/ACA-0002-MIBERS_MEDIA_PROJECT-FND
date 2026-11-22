@@ -31,6 +31,7 @@ export default [
     route("piezas/:piezaId", "routes/piezas.detalle.tsx"),
     route("cronograma", "routes/cronograma.tsx"),
     route("publicaciones", "routes/publicaciones.tsx"),
+    route("envios", "routes/envios.tsx"),
 
     // --- Modulo 3: metricas y analitica
     route("metricas", "routes/metricas.tsx"),

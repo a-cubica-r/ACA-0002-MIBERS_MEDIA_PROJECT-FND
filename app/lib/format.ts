@@ -1,5 +1,6 @@
 import type {
   EstadoCuenta,
+  EstadoEnvio,
   EstadoPieza,
   Estrategia,
   Red,
@@ -44,6 +45,13 @@ export const ESTADO_PIEZA_LABEL: Record<EstadoPieza, string> = {
   PUBLICADA: "Publicada",
   FALLIDA: "Fallida",
   COMPARTIDA: "Compartida",
+};
+export const ESTADO_ENVIO_LABEL: Record<EstadoEnvio, string> = {
+  PENDIENTE: "Pendiente",
+  ENVIADO: "Enviado",
+  ENTREGADO: "Entregado",
+  LEIDO: "Leído",
+  FALLIDO: "Fallido",
 };
 export const TIPO_PIEZA_LABEL: Record<TipoPieza, string> = {
   POST: "Post",

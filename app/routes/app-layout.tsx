@@ -11,6 +11,7 @@ import {
   IconHistory,
   IconHome,
   IconLogout,
+  IconMessage,
   IconSend,
   IconShield,
   IconUser,
@@ -41,6 +42,7 @@ function Shell({ user, children }: { user: Usuario | null; children: ReactNode }
     { to: "/piezas", label: "Contenido", icon: IconFile },
     { to: "/cronograma", label: "Cronograma", icon: IconCalendar },
     { to: "/publicaciones", label: "Publicaciones", icon: IconSend },
+    { to: "/envios", label: "Envíos al cliente", icon: IconMessage },
     { to: "/metricas", label: "Métricas", icon: IconChart },
     ...adminOnly([
       { to: "/alertas", label: "Alertas", icon: IconBell },

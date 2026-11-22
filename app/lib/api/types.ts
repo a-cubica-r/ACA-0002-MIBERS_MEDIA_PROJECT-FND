@@ -82,6 +82,21 @@ export interface PiezaResumen {
   responsable: string | null;
   responsable_username: string;
 }
+export type EstadoEnvio = "PENDIENTE" | "ENVIADO" | "ENTREGADO" | "LEIDO" | "FALLIDO";
+/** Envío de una pieza al cliente por WhatsApp (HU-19, RF18). `numero` llega enmascarado. */
+export interface Envio {
+  id: string;
+  pieza: { id: string; titulo: string; tipo: TipoPieza };
+  cliente: { id: string; nombre: string };
+  contacto: { id: string; nombre: string };
+  numero: string;
+  archivo: { id: string; nombre: string; kind: "image" | "video" } | null;
+  estado: EstadoEnvio;
+  error: string;
+  enviado_at: string | null;
+  entregado_at: string | null;
+  created_at: string;
+}
 export interface EmpresaActual {
   cliente: Cliente;
   proximas_publicaciones: PiezaResumen[];

@@ -15,8 +15,17 @@ import {
   buttonClasses,
 } from "~/components/ui";
 import { EstadoPiezaBadge } from "~/features/contenido/badges";
+import { EnviosPieza, type EnviosPiezaData } from "~/features/envios/envios-pieza";
 import { ArchivoPreview, EditableDownload } from "./archivo-preview";
-export function PiezaDetail({ pieza: p, revisiones }: { pieza: Pieza; revisiones: Revision[] }) {
+export function PiezaDetail({
+  pieza: p,
+  revisiones,
+  envios,
+}: {
+  pieza: Pieza;
+  revisiones: Revision[];
+  envios: EnviosPiezaData;
+}) {
   const admin = useIsAdmin();
   const mutation = useFetcher<typeof clientAction>();
   const preview = useFetcher<typeof clientAction>();
@@ -277,6 +286,7 @@ export function PiezaDetail({ pieza: p, revisiones }: { pieza: Pieza; revisiones
           )}
         </div>
       </section>
+      <EnviosPieza estado={p.estado} envios={envios} />
       <section className="border-line bg-surface space-y-4 rounded-xl border p-5">
         <h2 className="text-lg font-semibold">Revisiones</h2>
         {!revisiones.length && <p className="text-ink-muted">Aún no hay revisiones.</p>}

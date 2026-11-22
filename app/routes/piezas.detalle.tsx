@@ -10,17 +10,25 @@ import {
   reorderArchivos,
   uploadArchivo,
 } from "~/lib/api/piezas";
+import { listEnviosPieza } from "~/lib/api/envios";
 import { ApiError } from "~/lib/api/errors";
 import { requireAdmin, requireUser } from "~/lib/auth/guards";
 import { PiezaDetail } from "~/features/piezas/pieza-detail";
 export const meta = () => [{ title: "Detalle de pieza · Mibers" }];
 export async function clientLoader({ request, params }: Route.ClientLoaderArgs) {
   await requireUser(request);
-  const [pieza, revisiones] = await Promise.all([
+  const [pieza, revisiones, envios] = await Promise.all([
     getPieza(params.piezaId),
     listRevisiones(params.piezaId),
+    listEnviosPieza(params.piezaId).then(
+      (items) => ({ items, error: null }),
+      (error: unknown) => {
+        if (!(error instanceof ApiError)) throw error;
+        return { items: null, error: error.message };
+      },
+    ),
   ]);
-  return { pieza, revisiones };
+  return { pieza, revisiones, envios };
 }
 export async function clientAction({ request, params }: Route.ClientActionArgs) {
   await requireUser(request);
