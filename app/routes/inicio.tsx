@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import { Card, EmptyState, PageHeader, buttonClasses } from "~/components/ui";
 import { EmpresaCard } from "~/features/inicio/empresa-card";
 import { listEmpresasActuales } from "~/lib/api/empresas";
+import { listPublicaciones } from "~/lib/api/publicaciones";
 import { requireUser } from "~/lib/auth/guards";
 import { useCurrentUser } from "~/lib/auth/use-current-user";
 import { fullName } from "~/lib/format";
@@ -11,7 +12,16 @@ import type { Route } from "./+types/inicio";
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   await requireUser(request);
-  return { empresas: await listEmpresasActuales() };
+  const [empresas, porConfirmar] = await Promise.all([
+    listEmpresasActuales(),
+    listPublicaciones("PENDIENTE").catch(() => null),
+  ]);
+  // El resumen del backend cuenta estados de piezas; las tareas de publicacion manual pendientes
+  // se suman aqui para que no desaparezcan del inicio.
+  const porConfirmarPorCliente: Record<string, number> = {};
+  for (const tarea of porConfirmar?.results ?? [])
+    porConfirmarPorCliente[tarea.cliente] = (porConfirmarPorCliente[tarea.cliente] ?? 0) + 1;
+  return { empresas, porConfirmarPorCliente, totalPorConfirmar: porConfirmar?.count ?? 0 };
 }
 
 export function meta() {
@@ -20,7 +30,7 @@ export function meta() {
 
 export default function Inicio({ loaderData }: Route.ComponentProps) {
   const user = useCurrentUser();
-  const { empresas } = loaderData;
+  const { empresas, porConfirmarPorCliente, totalPorConfirmar } = loaderData;
   const piezasPendientes = empresas.reduce(
     (total, empresa) =>
       total +
@@ -29,7 +39,7 @@ export default function Inicio({ loaderData }: Route.ComponentProps) {
       empresa.pendientes.cambios_solicitados +
       empresa.pendientes.aprobadas_sin_programar +
       empresa.pendientes.fallidas,
-    0,
+    totalPorConfirmar,
   );
   const publicacionesFallidas = empresas.reduce(
     (total, empresa) => total + empresa.pendientes.fallidas,
@@ -73,7 +83,11 @@ export default function Inicio({ loaderData }: Route.ComponentProps) {
       {empresas.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {empresas.map((empresa) => (
-            <EmpresaCard key={empresa.cliente.id} empresa={empresa} />
+            <EmpresaCard
+              key={empresa.cliente.id}
+              empresa={empresa}
+              porConfirmar={porConfirmarPorCliente[empresa.cliente.id] ?? 0}
+            />
           ))}
         </div>
       ) : (

@@ -21,7 +21,14 @@ const ESTADO_TONE: Record<EstadoPieza, BadgeTone> = {
   COMPARTIDA: "neutral",
 };
 
-export function EmpresaCard({ empresa }: { empresa: EmpresaActual }) {
+export function EmpresaCard({
+  empresa,
+  porConfirmar = 0,
+}: {
+  empresa: EmpresaActual;
+  /** Tareas de publicacion pendientes de confirmar (publicacion manual asistida). */
+  porConfirmar?: number;
+}) {
   const { cliente, pendientes, proximas_publicaciones, semana_actual } = empresa;
   const { plan, programadas } = semana_actual;
   const avance = plan > 0 ? Math.min(100, Math.round((programadas / plan) * 100)) : 0;
@@ -36,6 +43,7 @@ export function EmpresaCard({ empresa }: { empresa: EmpresaActual }) {
         tone: "brand",
       },
       { label: "Fallidas", value: pendientes.fallidas, tone: "danger" },
+      { label: "Publicaciones por confirmar", value: porConfirmar, tone: "warning" },
     ] satisfies { label: string; value: number; tone: BadgeTone }[]
   ).filter((chip) => chip.value > 0);
 
